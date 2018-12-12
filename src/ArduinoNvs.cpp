@@ -1,5 +1,6 @@
-// TridentTD_TridentTD_ESP32NVS.cpp
+// ArduinoNvs.cpp
 
+// Copyright (c) 2018 Sinai RnD
 // Copyright (c) 2016-2017 TridentTD
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,13 +22,12 @@
 // SOFTWARE.
 
 
-#include "TridentTD_ESP32NVS.h"
+#include "ArduinoNvs.h"
 
-TridentTD_ESP32NVS::TridentTD_ESP32NVS(){
+ArduinoNvs::ArduinoNvs(){
 }
 
-
-bool TridentTD_ESP32NVS::begin(){
+bool ArduinoNvs::begin(){
   _err = nvs_flash_init();
   if (_err == ESP_ERR_NVS_NO_FREE_PAGES) {
     const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
@@ -39,23 +39,23 @@ bool TridentTD_ESP32NVS::begin(){
   return true;  
 }
 
-void TridentTD_ESP32NVS::close(){
+void ArduinoNvs::close(){
    nvs_close(_nvs_handle);
 }
 
-bool TridentTD_ESP32NVS::eraseAll(){
+bool ArduinoNvs::eraseAll(){
   _err = nvs_erase_all(_nvs_handle);
   if(_err != ESP_OK) return false;
   return commit();
 }
 
-bool TridentTD_ESP32NVS::erase(String key){
+bool ArduinoNvs::erase(String key){
   _err =  nvs_erase_key(_nvs_handle, key.c_str());
   if(_err != ESP_OK) return false;
   return commit();
 }
 
-bool TridentTD_ESP32NVS::commit(){
+bool ArduinoNvs::commit(){
   _err = nvs_commit(_nvs_handle);
   if(_err != ESP_OK) return false;
   return true;
@@ -64,67 +64,71 @@ bool TridentTD_ESP32NVS::commit(){
 
 
 
-bool TridentTD_ESP32NVS::setInt(String key, uint8_t value){
+bool ArduinoNvs::setInt(String key, uint8_t value){
   _err = nvs_set_u8(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit(); 
 }
 
-bool TridentTD_ESP32NVS::setInt(String key, int16_t value){
+bool ArduinoNvs::setInt(String key, int16_t value){
   _err = nvs_set_i16(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit();
 }
 
-bool TridentTD_ESP32NVS::setInt(String key, uint16_t value){
+bool ArduinoNvs::setInt(String key, uint16_t value){
   _err = nvs_set_u16(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit(); 
 }
 
-bool TridentTD_ESP32NVS::setInt(String key, int32_t value){
+bool ArduinoNvs::setInt(String key, int32_t value){
   _err = nvs_set_i32(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit();
 }
 
-bool TridentTD_ESP32NVS::setInt(String key, uint32_t value){
+bool ArduinoNvs::setInt(String key, uint32_t value){
   _err = nvs_set_u32(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit(); 
 }
-bool TridentTD_ESP32NVS::setInt(String key, int64_t value){
+bool ArduinoNvs::setInt(String key, int64_t value){
   _err = nvs_set_i64(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit();
 }
 
-bool TridentTD_ESP32NVS::setInt(String key, uint64_t value){
+bool ArduinoNvs::setInt(String key, uint64_t value){
   _err = nvs_set_u64(_nvs_handle, (char*)key.c_str(), value);
-  if(_err != ESP_OK) return false;
+  if(_err != ESP_OK) return false;  
   return commit();
 }
 
-bool TridentTD_ESP32NVS::setCharArray(String key, const char* value){
+bool ArduinoNvs::setCharArray(String key, const char* value){
   _err = nvs_set_str(_nvs_handle, (char*)key.c_str(), value);
   if(_err != ESP_OK) return false;
   return commit(); 
 }
 
-bool TridentTD_ESP32NVS::setString(String key, String value){
+bool ArduinoNvs::setString(String key, String value){
   _err = nvs_set_str(_nvs_handle, (char*)key.c_str(), (char*)value.c_str());
   if(_err != ESP_OK) return false;
   return commit(); 
 }
 
-bool TridentTD_ESP32NVS::setObject(String key, void* value, size_t length){
+bool ArduinoNvs::setObject(String key, void* value, size_t length){
+  DEBUG_PRINTF("ArduinoNvs::setObjct(): set obj addr = [0x%X], length = [%d]\n", (int32_t)value, length);
   _err = nvs_set_blob(_nvs_handle, (char*)key.c_str(), value, length);
-  if(_err != ESP_OK) return false;
+  if (_err) {
+    DEBUG_PRINTF("ArduinoNvs::setObjct(): err = [0x%X]\n", _err);
+    return false;
+  }
   return commit();
 }
 
 
-int64_t TridentTD_ESP32NVS::getInt(String key){
+int64_t ArduinoNvs::getInt(String key){
   uint8_t   v_u8;
   int16_t   v_i16;
   uint16_t  v_u16;
@@ -157,51 +161,76 @@ int64_t TridentTD_ESP32NVS::getInt(String key){
   return 0;
 }
 
-String TridentTD_ESP32NVS::getString(String key){
+bool ArduinoNvs::getString(String key, String& res){
   size_t required_size;
-  nvs_get_str(_nvs_handle, key.c_str(), NULL, &required_size);
-  char* value = (char*) malloc(required_size);
-  nvs_get_str(_nvs_handle, key.c_str(), value, &required_size);
-  return String(value);
+  esp_err_t err;
+  
+  err = nvs_get_str(_nvs_handle, key.c_str(), NULL, &required_size);
+  if (err) return false;    
+  
+  char value[required_size];
+  err = nvs_get_str(_nvs_handle, key.c_str(), value, &required_size);
+  if (err) return false;
+  res = value;
+  return true;
 }
 
-char* TridentTD_ESP32NVS::getCharArray(String key) {
+String ArduinoNvs::getString(String key){
+  String res;
+  esp_err_t err = getString(key, res);
+  if (err) return String();
+  return res;
+}
+
+bool ArduinoNvs::getObject(String key, std::vector<uint8_t>& res){
   size_t required_size;
-  nvs_get_str(_nvs_handle, key.c_str(), NULL, &required_size);
-  char* value = (char*) malloc(required_size);
-  nvs_get_str(_nvs_handle, key.c_str(), value, &required_size);
-  return value;
+  esp_err_t err; 
+  err = nvs_get_blob(_nvs_handle, key.c_str(), NULL, &required_size);
+  if (err) {
+    DEBUG_PRINTF("ArduinoNvs::getObject(): size err = [0x%X]\n", err);
+    return false;
+  }
+  res.resize(required_size);  
+  err = nvs_get_blob(_nvs_handle, key.c_str(), &res[0], &required_size);
+  if (err) {
+    DEBUG_PRINTF("ArduinoNvs::getObject(): get object err = [0x%X]\n", err);
+    return false;
+  }
+  DEBUG_PRINTF("ArduinoNvs::getObject(): obj read, addr = [0x%X], size = [%d]\n", (int32_t)&res[0], res.size());
+  return true;
 }
 
-void* TridentTD_ESP32NVS::getObject(String key){
-  size_t required_size;
-  nvs_get_blob(_nvs_handle, key.c_str(), NULL, &required_size);
-  void* blob = (void*) malloc(required_size);
-  nvs_get_blob(_nvs_handle, key.c_str(), blob, &required_size);
-  return blob;
+std::vector<uint8_t> ArduinoNvs::getObject(String key){
+  std::vector<uint8_t> res;
+  esp_err_t err =  getObject(key, res);
+  if (err) res.clear();
+  return res;
 }
 
-bool TridentTD_ESP32NVS::setFloat(String key, float value){
-  return setObject( key, &value, sizeof(float));
+
+
+bool ArduinoNvs::setFloat(String key, float value){
+  return setObject(key, &value, sizeof(float));
 }
 
-float TridentTD_ESP32NVS::getFloat(String key){
-  float *pFloat = (float*) getObject(key);
-  return *pFloat;
+float ArduinoNvs::getFloat(String key){
+  std::vector<uint8_t> res(4);
+  if (!getObject(key, res)) return 0;  
+  return  *(float*)&res;
 }
 
-// bool TridentTD_ESP32NVS::setDouble(String key, double value){
+// bool ArduinoNvs::setDouble(String key, double value){
 //   return setObject( key, &value, sizeof(double));
 // }
 
-// double TridentTD_ESP32NVS::getDouble(String key){
+// double ArduinoNvs::getDouble(String key){
 //   double *pDouble = (double*) getObject(key);
 //   return *pDouble;
 // }
 
-nvs_handle TridentTD_ESP32NVS::get_nvs_handle(){
+nvs_handle ArduinoNvs::get_nvs_handle(){
   return _nvs_handle;
 }
 
-TridentTD_ESP32NVS NVS;
+ArduinoNvs NVS;
 

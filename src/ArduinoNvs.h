@@ -1,5 +1,6 @@
-// TridentTD_TridentTD_ESP32NVS.h
+// ArduinoNvs.h
 
+// Copyright (c) 2018 Sinai RnD
 // Copyright (c) 2016-2017 TridentTD
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,10 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef __TRIDENTTD_ESP32NVS_H__
-#define __TRIDENTTD_ESP32NVS_H__
+#ifndef __ARDUINO_NVS_H__
+#define __ARDUINO_NVS_H__
 
 #include <Arduino.h>
+#include <vector>
 
 extern "C" {
 #include "esp_partition.h"
@@ -32,7 +34,8 @@ extern "C" {
 #include "nvs.h"
 }
 
-#ifdef TRIDENTTD_DEBUG_MODE
+#define ARDUINONVS_DEBUG_MODE
+#ifdef ARDUINONVS_DEBUG_MODE
     #define DEBUG_PRINTER Serial
     #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
     #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
@@ -43,9 +46,9 @@ extern "C" {
     #define DEBUG_PRINTF(fmt, args...) { }
 #endif
 
-class TridentTD_ESP32NVS {
+class ArduinoNvs {
 public:
-  TridentTD_ESP32NVS();
+  ArduinoNvs();
 
   bool    begin();
   void    close();
@@ -67,9 +70,12 @@ public:
 
   int64_t getInt(String key);
   float   getFloat(String key);
+  
+  bool    getString(String key, String& res);
   String  getString(String key);
-  char*   getCharArray(String key);
-  void*   getObject(String key);
+    
+  bool    getObject(String key, std::vector<uint8_t>& res);
+  std::vector<uint8_t> getObject(String key);
 
 //  bool    setDouble(String key, double value);
 //  double  getDouble(String key);
@@ -82,7 +88,7 @@ private:
   nvs_handle  get_nvs_handle();
 };
 
-extern TridentTD_ESP32NVS NVS;
+extern ArduinoNvs NVS;
 
 #endif
 
