@@ -1,9 +1,11 @@
-NVS-ESP32 Library
+Arduino NVS Library
 ==========================
 
 ## Summary
-NVS-ESP32 is a port for a non-volatile storage (NVS, flash) [library](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/storage/nvs_flash.html) for ESP32 to the Arduino Platform. It wraps main NVS functionality into the Arduino-styled C++ class.
+Arduino NVS is a port for a non-volatile storage (NVS, flash) [library](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/storage/nvs_flash.html) for ESP32 to the Arduino Platform. It wraps main NVS functionality into the Arduino-styled C++ class.
 This lib is inspired and based on [TridentTD_ESP32NVS](https://github.com/TridentTD/TridentTD_ESP32NVS)  work. This lib is a further development of it, contains a lot of improvements, bugfixes and translation (original text was published on [Thai](https://en.wikipedia.org/wiki/Thai_language)).
+
+# WARNIG: This lib is under active development. Use with CARE! #
 
 ## Introduction
 NVS lib (commonly mentioned as *"flash lib"*) is a library used for storing data  values in the flash memory in the ESP32. Data are stored in a non-volatile manner, so it is remaining in the memory after power-out or reboot of the ESP32.
@@ -23,7 +25,7 @@ Refer to the NVS ESP32 lib [original documentation](https://docs.espressif.com/p
 
 Please include the library.
 
-` #include <NVS-ESP32.h>` 
+` #include <ArduinoNvs.h>` 
 
 Then start the NVS every time with the command.
 
@@ -80,9 +82,10 @@ Serial.printf ("mac:% 02X:% 02X:% 02X:% 02X:% 02X:% 02X \ n",
                
 ```
 
-  
-
-Phiên bản
------
-1.0 TridentTD
-21 November 2560 Buddism Era (2017)
+### Main flaws ###
+1. Bug. Dynamic memory allocated without freeing
+1. Check return for EVERY nvs call, that may return Error
+1. All key-values are stored in the same namespace
+1. Mandatory commiting after every set
+1. Rewrite using `SimpleAsert` lib
+1. Wrap low-level ESP32 NVS API into separate class, to make the library more abstract and  be able to ported to the platforms other than ESP32.

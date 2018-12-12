@@ -1,5 +1,5 @@
 
-#include <TridentTD_ESP32NVS.h>
+#include <ArduinoNvs.h>
 
 void setup() {
   Serial.begin(115200); Serial.println();

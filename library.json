@@ -1,17 +1,21 @@
 {
-  "name": "TridentTD_ESP32NVS",
+  "name": "ArduinoNvs",
   "keywords": "NVS, ESP32, Non-volatile storage",
-  "description": "A library for ESP32 NVS (Non-volatile storage)",
-  "homepage": "https://github.com/TridentTD/TridentTD_ESP32NVS",
+  "description": "Arduino wrapper for ESP32 NVS (Non-volatile storage)",
+  "homepage": "https://github.com/rpolitex/ArduinoNvs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TridentTD/TridentTD_ESP32NVS"
+    "url": "https://github.com/rpolitex/ArduinoNvs"
   },
   "version": "1.0",
-  "authors": {
-    "name": "TridentTD",
-    "url": "https://github.com/TridentTD/"
-  },
+  "authors": [
+    {
+    "name": "dRKr",
+    "email": "info@sinai.io",
+    "url": "www.sinai.io",
+    "maintainer": true 
+    }    
+  ],
   "frameworks": "arduino",
   "platforms": "esp32"
 }
