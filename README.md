@@ -83,9 +83,9 @@ Serial.printf ("mac:% 02X:% 02X:% 02X:% 02X:% 02X:% 02X \ n",
 ```
 
 ### Main flaws ###
-1. Bug. Dynamic memory allocated without freeing
+1. **FIXED** ~~Bug. Dynamic memory allocated without freeing~~
 1. Check return for EVERY nvs call, that may return Error
-1. All key-values are stored in the same namespace
-1. Mandatory commiting after every set
+1. All key-values are stored in the same namespace - need to give user change this
+1. Mandatory commiting after every set - nned to give a user freedom to choose and make `commit()` public
 1. Rewrite using `SimpleAsert` lib
 1. Wrap low-level ESP32 NVS API into separate class, to make the library more abstract and  be able to ported to the platforms other than ESP32.

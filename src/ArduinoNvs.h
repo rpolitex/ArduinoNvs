@@ -82,8 +82,7 @@ public:
 
 private:
   nvs_handle  _nvs_handle;
-  esp_err_t   _err;
-
+  
   bool        commit();
   nvs_handle  get_nvs_handle();
 };
