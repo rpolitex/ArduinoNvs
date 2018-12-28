@@ -50,7 +50,7 @@ class ArduinoNvs {
 public:
   ArduinoNvs();
 
-  bool    begin();
+  bool    begin(String namespaceNvs = "storage");
   void    close();
 
   bool    eraseAll();
@@ -79,11 +79,10 @@ public:
 
 //  bool    setDouble(String key, double value);
 //  double  getDouble(String key);
-
-private:
-  nvs_handle  _nvs_handle;
-  
   bool        commit();
+protected:
+  nvs_handle  _nvs_handle;  
+  
   nvs_handle  get_nvs_handle();
 };
 
