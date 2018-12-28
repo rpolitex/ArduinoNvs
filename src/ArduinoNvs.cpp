@@ -27,15 +27,25 @@
 ArduinoNvs::ArduinoNvs(){
 }
 
-bool ArduinoNvs::begin(){
+bool ArduinoNvs::begin(String namespaceNvs){
   esp_err_t err = nvs_flash_init();
-  if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
-    const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-    err = (esp_partition_erase_range(nvs_partition, 0, nvs_partition->size));
-  }
-  err = nvs_open("storage", NVS_READWRITE, &_nvs_handle);
+  if ( err != ESP_OK) {
+    DEBUG_PRINTLN("W: NVS. Cannot init flash mem");
+    if (err != ESP_ERR_NVS_NO_FREE_PAGES)  return false;
 
+    // erase and reinit
+    DEBUG_PRINTLN("NVS. Try reinit the partition");
+    const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+    if (nvs_partition == NULL) return false;
+    err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
+    esp_err_t err = nvs_flash_init();
+    if (err) return false;   
+    DEBUG_PRINTLN("NVS. Partition re-formatted");
+  }
+
+  err = nvs_open(namespaceNvs.c_str(), NVS_READWRITE, &_nvs_handle);
   if(err != ESP_OK) return false;
+
   return true;  
 }
 
@@ -60,7 +70,6 @@ bool ArduinoNvs::commit(){
   if(err != ESP_OK) return false;
   return true;
 }
-
 
 
 
