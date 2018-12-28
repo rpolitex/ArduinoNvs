@@ -53,16 +53,16 @@ void ArduinoNvs::close(){
    nvs_close(_nvs_handle);
 }
 
-bool ArduinoNvs::eraseAll(){
+bool ArduinoNvs::eraseAll(bool forceCommit){
   esp_err_t err = nvs_erase_all(_nvs_handle);
   if(err != ESP_OK) return false;
-  return commit();
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::erase(String key){
+bool ArduinoNvs::erase(String key, bool forceCommit){
   esp_err_t err =  nvs_erase_key(_nvs_handle, key.c_str());
   if(err != ESP_OK) return false;
-  return commit();
+  return forceCommit ? commit() : true;
 }
 
 bool ArduinoNvs::commit(){
@@ -73,67 +73,67 @@ bool ArduinoNvs::commit(){
 
 
 
-bool ArduinoNvs::setInt(String key, uint8_t value){
+bool ArduinoNvs::setInt(String key, uint8_t value, bool forceCommit){
   esp_err_t err = nvs_set_u8(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit(); 
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, int16_t value){
+bool ArduinoNvs::setInt(String key, int16_t value, bool forceCommit){
   esp_err_t err = nvs_set_i16(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit();
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, uint16_t value){
+bool ArduinoNvs::setInt(String key, uint16_t value, bool forceCommit){
   esp_err_t err = nvs_set_u16(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit(); 
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, int32_t value){
+bool ArduinoNvs::setInt(String key, int32_t value, bool forceCommit){
   esp_err_t err = nvs_set_i32(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit();
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, uint32_t value){
+bool ArduinoNvs::setInt(String key, uint32_t value, bool forceCommit){
   esp_err_t err = nvs_set_u32(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit(); 
+  return forceCommit ? commit() : true;
 }
-bool ArduinoNvs::setInt(String key, int64_t value){
+bool ArduinoNvs::setInt(String key, int64_t value, bool forceCommit){
   esp_err_t err = nvs_set_i64(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit();
+ return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, uint64_t value){
+bool ArduinoNvs::setInt(String key, uint64_t value, bool forceCommit){
   esp_err_t err = nvs_set_u64(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;  
-  return commit();
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setCharArray(String key, const char* value){
+bool ArduinoNvs::setCharArray(String key, const char* value, bool forceCommit){
   esp_err_t err = nvs_set_str(_nvs_handle, (char*)key.c_str(), value);
   if(err != ESP_OK) return false;
-  return commit(); 
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setString(String key, String value){
+bool ArduinoNvs::setString(String key, String value, bool forceCommit){
   esp_err_t err = nvs_set_str(_nvs_handle, (char*)key.c_str(), (char*)value.c_str());
   if(err != ESP_OK) return false;
-  return commit(); 
+  return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setObject(String key, void* value, size_t length){
+bool ArduinoNvs::setObject(String key, void* value, size_t length, bool forceCommit){
   DEBUG_PRINTF("ArduinoNvs::setObjct(): set obj addr = [0x%X], length = [%d]\n", (int32_t)value, length);
   esp_err_t err = nvs_set_blob(_nvs_handle, (char*)key.c_str(), value, length);
   if (err) {
     DEBUG_PRINTF("ArduinoNvs::setObjct(): err = [0x%X]\n", err);
     return false;
   }
-  return commit();
+  return forceCommit ? commit() : true;
 }
 
 
@@ -219,14 +219,14 @@ std::vector<uint8_t> ArduinoNvs::getObject(String key){
 
 
 
-bool ArduinoNvs::setFloat(String key, float value){
-  return setObject(key, &value, sizeof(float));
+bool ArduinoNvs::setFloat(String key, float value, bool forceCommit){
+  return setObject(key, &value, sizeof(float), forceCommit);
 }
 
 float ArduinoNvs::getFloat(String key){
   std::vector<uint8_t> res(4);
   if (!getObject(key, res)) return 0;  
-  return  *(float*)&res;
+  return  *(float*) (&res[0]);
 }
 
 // bool ArduinoNvs::setDouble(String key, double value){

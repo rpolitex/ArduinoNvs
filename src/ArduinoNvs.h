@@ -53,20 +53,20 @@ public:
   bool    begin(String namespaceNvs = "storage");
   void    close();
 
-  bool    eraseAll();
-  bool    erase(String key);
+  bool    eraseAll(bool forceCommit = true);
+  bool    erase(String key, bool forceCommit = true);
 
-  bool    setInt(String key, uint8_t value);
-  bool    setInt(String key, int16_t value);
-  bool    setInt(String key, uint16_t value);
-  bool    setInt(String key, int32_t value);
-  bool    setInt(String key, uint32_t value);
-  bool    setInt(String key, int64_t value);
-  bool    setInt(String key, uint64_t value);
-  bool    setFloat(String key, float value);
-  bool    setString(String key, String value);
-  bool    setCharArray(String key, const char* value);
-  bool    setObject(String key, void* object, size_t length);
+  bool    setInt(String key, uint8_t value, bool forceCommit = true);
+  bool    setInt(String key, int16_t value, bool forceCommit = true);
+  bool    setInt(String key, uint16_t value, bool forceCommit = true);
+  bool    setInt(String key, int32_t value, bool forceCommit = true);
+  bool    setInt(String key, uint32_t value, bool forceCommit = true);
+  bool    setInt(String key, int64_t value, bool forceCommit = true);
+  bool    setInt(String key, uint64_t value, bool forceCommit = true);
+  bool    setFloat(String key, float value, bool forceCommit = true);
+  bool    setString(String key, String value, bool forceCommit = true);
+  bool    setCharArray(String key, const char* value, bool forceCommit = true);
+  bool    setObject(String key, void* object, size_t length, bool forceCommit = true);
 
   int64_t getInt(String key);
   float   getFloat(String key);
