@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include <vector>
-
 #include "ArduinoNvs.h"
 
 using namespace std;
