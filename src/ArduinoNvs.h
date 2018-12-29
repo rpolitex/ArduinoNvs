@@ -81,9 +81,7 @@ public:
 
   bool        commit();
 protected:
-  nvs_handle  _nvs_handle;  
-  
-  nvs_handle  get_nvs_handle();
+  nvs_handle  _nvs_handle;    
 };
 
 extern ArduinoNvs NVS;

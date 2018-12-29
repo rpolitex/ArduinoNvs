@@ -21,237 +21,285 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #include "ArduinoNvs.h"
 
-ArduinoNvs::ArduinoNvs(){
+ArduinoNvs::ArduinoNvs()
+{
 }
 
-bool ArduinoNvs::begin(String namespaceNvs){
+bool ArduinoNvs::begin(String namespaceNvs)
+{
   esp_err_t err = nvs_flash_init();
-  if ( err != ESP_OK) {
+  if (err != ESP_OK)
+  {
     DEBUG_PRINTLN("W: NVS. Cannot init flash mem");
-    if (err != ESP_ERR_NVS_NO_FREE_PAGES)  return false;
+    if (err != ESP_ERR_NVS_NO_FREE_PAGES)
+      return false;
 
     // erase and reinit
     DEBUG_PRINTLN("NVS. Try reinit the partition");
-    const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-    if (nvs_partition == NULL) return false;
+    const esp_partition_t *nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+    if (nvs_partition == NULL)
+      return false;
     err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
     esp_err_t err = nvs_flash_init();
-    if (err) return false;   
+    if (err)
+      return false;
     DEBUG_PRINTLN("NVS. Partition re-formatted");
   }
 
   err = nvs_open(namespaceNvs.c_str(), NVS_READWRITE, &_nvs_handle);
-  if(err != ESP_OK) return false;
+  if (err != ESP_OK)
+    return false;
 
-  return true;  
-}
-
-void ArduinoNvs::close(){
-   nvs_close(_nvs_handle);
-}
-
-bool ArduinoNvs::eraseAll(bool forceCommit){
-  esp_err_t err = nvs_erase_all(_nvs_handle);
-  if(err != ESP_OK) return false;
-  return forceCommit ? commit() : true;
-}
-
-bool ArduinoNvs::erase(String key, bool forceCommit){
-  esp_err_t err =  nvs_erase_key(_nvs_handle, key.c_str());
-  if(err != ESP_OK) return false;
-  return forceCommit ? commit() : true;
-}
-
-bool ArduinoNvs::commit(){
-  esp_err_t err = nvs_commit(_nvs_handle);
-  if(err != ESP_OK) return false;
   return true;
 }
 
+void ArduinoNvs::close()
+{
+  nvs_close(_nvs_handle);
+}
 
-
-bool ArduinoNvs::setInt(String key, uint8_t value, bool forceCommit){
-  esp_err_t err = nvs_set_u8(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;
+bool ArduinoNvs::eraseAll(bool forceCommit)
+{
+  esp_err_t err = nvs_erase_all(_nvs_handle);
+  if (err != ESP_OK)
+    return false;
   return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, int16_t value, bool forceCommit){
-  esp_err_t err = nvs_set_i16(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;
+bool ArduinoNvs::erase(String key, bool forceCommit)
+{
+  esp_err_t err = nvs_erase_key(_nvs_handle, key.c_str());
+  if (err != ESP_OK)
+    return false;
   return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, uint16_t value, bool forceCommit){
-  esp_err_t err = nvs_set_u16(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;
+bool ArduinoNvs::commit()
+{
+  esp_err_t err = nvs_commit(_nvs_handle);
+  if (err != ESP_OK)
+    return false;
+  return true;
+}
+
+bool ArduinoNvs::setInt(String key, uint8_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_u8(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
   return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, int32_t value, bool forceCommit){
-  esp_err_t err = nvs_set_i32(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;
+bool ArduinoNvs::setInt(String key, int16_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_i16(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
   return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setInt(String key, uint32_t value, bool forceCommit){
-  esp_err_t err = nvs_set_u32(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;
-  return forceCommit ? commit() : true;
-}
-bool ArduinoNvs::setInt(String key, int64_t value, bool forceCommit){
-  esp_err_t err = nvs_set_i64(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;
- return forceCommit ? commit() : true;
-}
-
-bool ArduinoNvs::setInt(String key, uint64_t value, bool forceCommit){
-  esp_err_t err = nvs_set_u64(_nvs_handle, (char*)key.c_str(), value);
-  if(err != ESP_OK) return false;  
+bool ArduinoNvs::setInt(String key, uint16_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_u16(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
   return forceCommit ? commit() : true;
 }
 
-
-bool ArduinoNvs::setString(String key, String value, bool forceCommit){ 
-  esp_err_t err = nvs_set_str(_nvs_handle, (char*)key.c_str(), value.c_str());
-  if(err != ESP_OK) return false;
+bool ArduinoNvs::setInt(String key, int32_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_i32(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
   return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setBlob(String key, uint8_t* blob, size_t length, bool forceCommit){
+bool ArduinoNvs::setInt(String key, uint32_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_u32(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
+  return forceCommit ? commit() : true;
+}
+bool ArduinoNvs::setInt(String key, int64_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_i64(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
+  return forceCommit ? commit() : true;
+}
+
+bool ArduinoNvs::setInt(String key, uint64_t value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_u64(_nvs_handle, (char *)key.c_str(), value);
+  if (err != ESP_OK)
+    return false;
+  return forceCommit ? commit() : true;
+}
+
+bool ArduinoNvs::setString(String key, String value, bool forceCommit)
+{
+  esp_err_t err = nvs_set_str(_nvs_handle, (char *)key.c_str(), value.c_str());
+  if (err != ESP_OK)
+    return false;
+  return forceCommit ? commit() : true;
+}
+
+bool ArduinoNvs::setBlob(String key, uint8_t *blob, size_t length, bool forceCommit)
+{
   DEBUG_PRINTF("ArduinoNvs::setObjct(): set obj addr = [0x%X], length = [%d]\n", (int32_t)blob, length);
-  esp_err_t err = nvs_set_blob(_nvs_handle, (char*)key.c_str(), blob, length);
-  if (err) {
+  esp_err_t err = nvs_set_blob(_nvs_handle, (char *)key.c_str(), blob, length);
+  if (err)
+  {
     DEBUG_PRINTF("ArduinoNvs::setObjct(): err = [0x%X]\n", err);
     return false;
   }
   return forceCommit ? commit() : true;
 }
 
-bool ArduinoNvs::setBlob(String key, std::vector<uint8_t>& blob, bool forceCommit){
+bool ArduinoNvs::setBlob(String key, std::vector<uint8_t> &blob, bool forceCommit)
+{
   return setBlob(key, &blob[0], blob.size(), forceCommit);
 }
 
-int64_t ArduinoNvs::getInt(String key){
-  uint8_t   v_u8;
-  int16_t   v_i16;
-  uint16_t  v_u16;
-  int32_t   v_i32;
-  uint32_t  v_u32;
-  int64_t   v_i64;
-  uint64_t  v_u64;
-  
+int64_t ArduinoNvs::getInt(String key)
+{
+  uint8_t v_u8;
+  int16_t v_i16;
+  uint16_t v_u16;
+  int32_t v_i32;
+  uint32_t v_u32;
+  int64_t v_i64;
+  uint64_t v_u64;
+
   esp_err_t err;
-  err = nvs_get_u8(_nvs_handle, (char*)key.c_str(), &v_u8);
-  if(err == ESP_OK) return (int64_t) v_u8;
+  err = nvs_get_u8(_nvs_handle, (char *)key.c_str(), &v_u8);
+  if (err == ESP_OK)
+    return (int64_t)v_u8;
 
-  err = nvs_get_i16(_nvs_handle, (char*)key.c_str(), &v_i16);
-  if(err == ESP_OK) return (int64_t) v_i16;
+  err = nvs_get_i16(_nvs_handle, (char *)key.c_str(), &v_i16);
+  if (err == ESP_OK)
+    return (int64_t)v_i16;
 
-  err = nvs_get_u16(_nvs_handle, (char*)key.c_str(), &v_u16);
-  if(err == ESP_OK) return (int64_t) v_u16;
+  err = nvs_get_u16(_nvs_handle, (char *)key.c_str(), &v_u16);
+  if (err == ESP_OK)
+    return (int64_t)v_u16;
 
-  err = nvs_get_i32(_nvs_handle, (char*)key.c_str(), &v_i32);
-  if(err == ESP_OK) return (int64_t) v_i32;
+  err = nvs_get_i32(_nvs_handle, (char *)key.c_str(), &v_i32);
+  if (err == ESP_OK)
+    return (int64_t)v_i32;
 
-  err = nvs_get_u32(_nvs_handle, (char*)key.c_str(), &v_u32);
-  if(err == ESP_OK) return (int64_t) v_u32;
+  err = nvs_get_u32(_nvs_handle, (char *)key.c_str(), &v_u32);
+  if (err == ESP_OK)
+    return (int64_t)v_u32;
 
-  err = nvs_get_i64(_nvs_handle, (char*)key.c_str(), &v_i64);
-  if(err == ESP_OK) return (int64_t) v_i64;
+  err = nvs_get_i64(_nvs_handle, (char *)key.c_str(), &v_i64);
+  if (err == ESP_OK)
+    return (int64_t)v_i64;
 
-  err = nvs_get_u64(_nvs_handle, (char*)key.c_str(), &v_u64);
-  if(err == ESP_OK) return (int64_t) v_u64;
+  err = nvs_get_u64(_nvs_handle, (char *)key.c_str(), &v_u64);
+  if (err == ESP_OK)
+    return (int64_t)v_u64;
 
   return 0;
 }
 
-bool ArduinoNvs::getString(String key, String& res){
+bool ArduinoNvs::getString(String key, String &res)
+{
   size_t required_size;
   esp_err_t err;
-  
+
   err = nvs_get_str(_nvs_handle, key.c_str(), NULL, &required_size);
-  if (err) return false;    
-  
+  if (err)
+    return false;
+
   char value[required_size];
   err = nvs_get_str(_nvs_handle, key.c_str(), value, &required_size);
-  if (err) return false;
+  if (err)
+    return false;
   res = value;
   return true;
 }
 
-String ArduinoNvs::getString(String key){
+String ArduinoNvs::getString(String key)
+{
   String res;
-  esp_err_t err = getString(key, res);
-  if (err) return String();
+  bool ok = getString(key, res);
+  if (!ok)
+    return String();
   return res;
 }
 
-
-size_t  ArduinoNvs::getBlobSize(String key) {
+size_t ArduinoNvs::getBlobSize(String key)
+{
   size_t required_size;
   esp_err_t err = nvs_get_blob(_nvs_handle, key.c_str(), NULL, &required_size);
-  if (err) {
+  if (err)
+  {
     DEBUG_PRINTF("ArduinoNvs::getBlobSize(): err = [0x%X]\n", err);
     return 0;
   }
   return required_size;
 }
 
-bool ArduinoNvs::getBlob(String key, uint8_t* blob, size_t length){
-  if ( length == 0 ) return false;
-  
+bool ArduinoNvs::getBlob(String key, uint8_t *blob, size_t length)
+{
+  if (length == 0)
+    return false;
+
   size_t required_size = getBlobSize(key);
-  if ( required_size == 0 ) return false;
-  if ( length < required_size ) return false;
+  if (required_size == 0)
+    return false;
+  if (length < required_size)
+    return false;
 
   esp_err_t err = nvs_get_blob(_nvs_handle, key.c_str(), blob, &required_size);
-  if (err) {
+  if (err)
+  {
     DEBUG_PRINTF("ArduinoNvs::getBlob(): get object err = [0x%X]\n", err);
     return false;
-  }  
+  }
   return true;
 }
 
-
-bool ArduinoNvs::getBlob(String key, std::vector<uint8_t>& blob){
+bool ArduinoNvs::getBlob(String key, std::vector<uint8_t> &blob)
+{
   size_t required_size = getBlobSize(key);
-  if ( required_size == 0 ) return false;
+  if (required_size == 0)
+    return false;
 
-  blob.resize(required_size);  
+  blob.resize(required_size);
   esp_err_t err = nvs_get_blob(_nvs_handle, key.c_str(), &blob[0], &required_size);
-  if (err) {
+  if (err)
+  {
     DEBUG_PRINTF("ArduinoNvs::getBlob(): get object err = [0x%X]\n", err);
     return false;
-  }  
+  }
   return true;
 }
 
-std::vector<uint8_t> ArduinoNvs::getBlob(String key){
+std::vector<uint8_t> ArduinoNvs::getBlob(String key)
+{
   std::vector<uint8_t> res;
-  bool ok =  getBlob(key, res);
-  if (!ok) res.clear();
+  bool ok = getBlob(key, res);
+  if (!ok)
+    res.clear();
   return res;
 }
 
-
-
-bool ArduinoNvs::setFloat(String key, float value, bool forceCommit){
-  return setBlob(key, (uint8_t*)&value, sizeof(float), forceCommit);
+bool ArduinoNvs::setFloat(String key, float value, bool forceCommit)
+{
+  return setBlob(key, (uint8_t *)&value, sizeof(float), forceCommit);
 }
 
-float ArduinoNvs::getFloat(String key){
+float ArduinoNvs::getFloat(String key)
+{
   std::vector<uint8_t> res(sizeof(float));
-  if (!getBlob(key, res)) return 0;  
-  return  *(float*) (&res[0]);
-}
-
-nvs_handle ArduinoNvs::get_nvs_handle(){
-  return _nvs_handle;
+  if (!getBlob(key, res))
+    return 0;
+  return *(float *)(&res[0]);
 }
 
 ArduinoNvs NVS;
-
