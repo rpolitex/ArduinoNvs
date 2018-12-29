@@ -65,20 +65,20 @@ public:
   bool    setInt(String key, uint64_t value, bool forceCommit = true);
   bool    setFloat(String key, float value, bool forceCommit = true);
   bool    setString(String key, String value, bool forceCommit = true);
-  bool    setCharArray(String key, const char* value, bool forceCommit = true);
-  bool    setObject(String key, void* object, size_t length, bool forceCommit = true);
+  bool    setBlob(String key, uint8_t* blob, size_t length, bool forceCommit = true);
+  bool    setBlob(String key, std::vector<uint8_t>& blob, bool forceCommit = true);
 
   int64_t getInt(String key);
   float   getFloat(String key);
   
   bool    getString(String key, String& res);
   String  getString(String key);
-    
-  bool    getObject(String key, std::vector<uint8_t>& res);
-  std::vector<uint8_t> getObject(String key);
 
-//  bool    setDouble(String key, double value);
-//  double  getDouble(String key);
+  size_t  getBlobSize(String key);  /// Returns the size of the stored blob
+  bool    getBlob(String key,  uint8_t* blob, size_t length);  /// User should proivde enought memory to store the loaded blob. If length < than required size to store blob, function fails.
+  bool    getBlob(String key, std::vector<uint8_t>& blob);  
+  std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
+
   bool        commit();
 protected:
   nvs_handle  _nvs_handle;  
