@@ -1,6 +1,11 @@
 #include <Arduino.h>
 #include "ArduinoNvs.h"
 
+/** 
+ * Arduino NVS is a port for a non-volatile storage (NVS, flash) library for ESP32 to the Arduino Platform. 
+ * It wraps main NVS functionality into the Arduino-styled C++ class. 
+ */
+
 using namespace std;
 
 #define PRINT(...)   Serial.print(__VA_ARGS__)
@@ -64,7 +69,7 @@ void loop() {
                 DEBUG("6. nvss: ui64 %llu", uui64);
             } break;
             case '7': {            
-                uint64_t ii64 = nvss.getInt("i64");
+                int64_t ii64 = nvss.getInt("i64");
                 DEBUG("7. nvss: i64 %lli", ii64);            
             } break;
             case 'w': {
