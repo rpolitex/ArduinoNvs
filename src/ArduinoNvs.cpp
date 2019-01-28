@@ -150,6 +150,8 @@ bool ArduinoNvs::setString(String key, String value, bool forceCommit)
 bool ArduinoNvs::setBlob(String key, uint8_t *blob, size_t length, bool forceCommit)
 {
   DEBUG_PRINTF("ArduinoNvs::setObjct(): set obj addr = [0x%X], length = [%d]\n", (int32_t)blob, length);
+  if (length == 0) 
+    return false;
   esp_err_t err = nvs_set_blob(_nvs_handle, (char *)key.c_str(), blob, length);
   if (err)
   {
