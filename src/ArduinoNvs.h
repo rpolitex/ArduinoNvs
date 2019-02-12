@@ -34,16 +34,19 @@ extern "C" {
 #include "nvs.h"
 }
 
-#define ARDUINONVS_DEBUG_MODE
-#ifdef ARDUINONVS_DEBUG_MODE
-    #define DEBUG_PRINTER Serial
-    #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
-    #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
-    #define DEBUG_PRINTF(fmt, args...) { DEBUG_PRINTER.printf(fmt,## args); }
+#ifndef ARDUINONVS_SILENT
+#define ARDUINONVS_SILENT 0
+#endif
+
+#if ARDUINONVS_SILENT
+  #define DEBUG_PRINT(...) { }
+  #define DEBUG_PRINTLN(...) { }
+  #define DEBUG_PRINTF(fmt, args...) { }
 #else
-    #define DEBUG_PRINT(...) { }
-    #define DEBUG_PRINTLN(...) { }
-    #define DEBUG_PRINTF(fmt, args...) { }
+  #define DEBUG_PRINTER Serial
+  #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
+  #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
+  #define DEBUG_PRINTF(fmt, args...) { DEBUG_PRINTER.printf(fmt,## args); }
 #endif
 
 class ArduinoNvs {
