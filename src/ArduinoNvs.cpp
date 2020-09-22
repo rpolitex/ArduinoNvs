@@ -240,7 +240,8 @@ size_t ArduinoNvs::getBlobSize(String key)
   esp_err_t err = nvs_get_blob(_nvs_handle, key.c_str(), NULL, &required_size);
   if (err)
   {
-    DEBUG_PRINTF("ArduinoNvs::getBlobSize(): err = [0x%X]\n", err);
+    if (err != ESP_ERR_NVS_NOT_FOUND) // key_not_found is not an error, just return size 0
+      DEBUG_PRINTF("ArduinoNvs::getBlobSize(): err = [0x%X]\n", err);
     return 0;
   }
   return required_size;
