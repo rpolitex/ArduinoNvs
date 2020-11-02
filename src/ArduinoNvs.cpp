@@ -166,7 +166,7 @@ bool ArduinoNvs::setBlob(String key, std::vector<uint8_t> &blob, bool forceCommi
   return setBlob(key, &blob[0], blob.size(), forceCommit);
 }
 
-int64_t ArduinoNvs::getInt(String key, int32_t default_value)
+int64_t ArduinoNvs::getInt(String key, int64_t default_value)
 {
   uint8_t v_u8;
   int16_t v_i16;
