@@ -166,7 +166,7 @@ bool ArduinoNvs::setBlob(String key, std::vector<uint8_t> &blob, bool forceCommi
   return setBlob(key, &blob[0], blob.size(), forceCommit);
 }
 
-int64_t ArduinoNvs::getInt(String key)
+int64_t ArduinoNvs::getInt(String key, int32_t default_value)
 {
   uint8_t v_u8;
   int16_t v_i16;
@@ -205,7 +205,7 @@ int64_t ArduinoNvs::getInt(String key)
   if (err == ESP_OK)
     return (int64_t)v_u64;
 
-  return 0;
+  return default_value;
 }
 
 bool ArduinoNvs::getString(String key, String &res)
@@ -297,11 +297,11 @@ bool ArduinoNvs::setFloat(String key, float value, bool forceCommit)
   return setBlob(key, (uint8_t *)&value, sizeof(float), forceCommit);
 }
 
-float ArduinoNvs::getFloat(String key)
+float ArduinoNvs::getFloat(String key, float default_value)
 {
   std::vector<uint8_t> res(sizeof(float));
   if (!getBlob(key, res))
-    return 0;
+    return default_value;
   return *(float *)(&res[0]);
 }
 

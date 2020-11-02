@@ -71,8 +71,8 @@ public:
   bool    setBlob(String key, uint8_t* blob, size_t length, bool forceCommit = true);
   bool    setBlob(String key, std::vector<uint8_t>& blob, bool forceCommit = true);
 
-  int64_t getInt(String key);
-  float   getFloat(String key);
+  int64_t getInt(String key, int32_t default_value = 0);  // In case of error, default_value will be returned
+  float   getFloat(String key, float default_value = 0);
   
   bool    getString(String key, String& res);
   String  getString(String key);
