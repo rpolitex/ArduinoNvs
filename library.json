@@ -17,5 +17,5 @@
     }    
   ],
   "frameworks": "arduino",
-  "platforms": "esp32"
+  "platforms": ["esp32", "espressif32"]
 }
