@@ -38,6 +38,13 @@ extern "C" {
 #define ARDUINONVS_SILENT 0
 #endif
 
+#ifdef ARDUINONVS_STRING_INCLUDES
+#include ARDUINONVS_STRING_INCLUDES
+#endif
+#ifndef ARDUINONVS_STRING
+#define ARDUINONVS_STRING String
+#endif
+
 #if ARDUINONVS_SILENT
   #define DEBUG_PRINT(...) { }
   #define DEBUG_PRINTLN(...) { }
@@ -53,34 +60,34 @@ class ArduinoNvs {
 public:
   ArduinoNvs();
 
-  bool    begin(String namespaceNvs = "storage");
+  bool    begin(const ARDUINONVS_STRING& namespaceNvs = "storage");
   void    close();
 
   bool    eraseAll(bool forceCommit = true);
-  bool    erase(String key, bool forceCommit = true);
+  bool    erase(const ARDUINONVS_STRING& key, bool forceCommit = true);
 
-  bool    setInt(String key, uint8_t value, bool forceCommit = true);
-  bool    setInt(String key, int16_t value, bool forceCommit = true);
-  bool    setInt(String key, uint16_t value, bool forceCommit = true);
-  bool    setInt(String key, int32_t value, bool forceCommit = true);
-  bool    setInt(String key, uint32_t value, bool forceCommit = true);
-  bool    setInt(String key, int64_t value, bool forceCommit = true);
-  bool    setInt(String key, uint64_t value, bool forceCommit = true);
-  bool    setFloat(String key, float value, bool forceCommit = true);
-  bool    setString(String key, String value, bool forceCommit = true);
-  bool    setBlob(String key, uint8_t* blob, size_t length, bool forceCommit = true);
-  bool    setBlob(String key, std::vector<uint8_t>& blob, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, uint8_t value, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, int16_t value, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, uint16_t value, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, int32_t value, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, uint32_t value, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, int64_t value, bool forceCommit = true);
+  bool    setInt(const ARDUINONVS_STRING& key, uint64_t value, bool forceCommit = true);
+  bool    setFloat(const ARDUINONVS_STRING& key, float value, bool forceCommit = true);
+  bool    setString(const ARDUINONVS_STRING& key, const ARDUINONVS_STRING& value, bool forceCommit = true);
+  bool    setBlob(const ARDUINONVS_STRING& key, const uint8_t* blob, size_t length, bool forceCommit = true);
+  bool    setBlob(const ARDUINONVS_STRING& key, const std::vector<uint8_t>& blob, bool forceCommit = true);
 
-  int64_t getInt(String key, int64_t default_value = 0);  // In case of error, default_value will be returned
-  float   getFloat(String key, float default_value = 0);
+  int64_t getInt(const ARDUINONVS_STRING& key, int64_t default_value = 0);  // In case of error, default_value will be returned
+  float   getFloat(const ARDUINONVS_STRING& key, float default_value = 0);
   
-  bool    getString(String key, String& res);
-  String  getString(String key);
+  bool    getString(const ARDUINONVS_STRING& key, String& res);
+  String  getString(const ARDUINONVS_STRING& key);
 
-  size_t  getBlobSize(String key);  /// Returns the size of the stored blob
-  bool    getBlob(String key,  uint8_t* blob, size_t length);  /// User should proivde enought memory to store the loaded blob. If length < than required size to store blob, function fails.
-  bool    getBlob(String key, std::vector<uint8_t>& blob);  
-  std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
+  size_t  getBlobSize(const ARDUINONVS_STRING& key);  /// Returns the size of the stored blob
+  bool    getBlob(const ARDUINONVS_STRING& key, uint8_t* blob, size_t length);  /// User should proivde enought memory to store the loaded blob. If length < than required size to store blob, function fails.
+  bool    getBlob(const ARDUINONVS_STRING& key, std::vector<uint8_t>& blob);
+  std::vector<uint8_t> getBlob(const ARDUINONVS_STRING& key); /// Less eficient but more simple in usage implemetation of `getBlob()`
 
   bool        commit();
 protected:
