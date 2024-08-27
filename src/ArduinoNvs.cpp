@@ -29,12 +29,12 @@ ArduinoNvs::ArduinoNvs()
 
 esp_err_t ArduinoNvs::_init(nvs_sec_cfg_t *keys)
 {
+  // If encryption is supported - make additional moves for retrieving keys:
+  // - try to use user-provided keys if any, OR
+  // - check is keypartition present, if no - as a last hope - try to open NVS in non-encrypted mode
   #ifdef CONFIG_NVS_ENCRYPTION
   bool noKeyPartition = ( NULL == esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL) );
 
-  // If encryption is supported - make additional cheks about keys:
-  // - try to use user-provided keys if any, OR
-  // - check is keypartition present, if no - as a last hope - try to open NVS in non-encrypted mode
   if (keys)
   {
     return nvs_flash_secure_init(keys);
@@ -66,11 +66,10 @@ bool ArduinoNvs::begin(String namespaceNvs, nvs_sec_cfg_t *keys)
 
     // erase and reinit
     DEBUG_PRINTLN("NVS. Try reinit the partition");
-    const esp_partition_t *nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-    if (nvs_partition == NULL)
+    err = format();
+    if (err)
       return false;
-    err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
-    esp_err_t err = _init(keys);
+    err = _init(keys);
     if (err)
       return false;
     DEBUG_PRINTLN("NVS. Partition re-formatted");
@@ -81,6 +80,16 @@ bool ArduinoNvs::begin(String namespaceNvs, nvs_sec_cfg_t *keys)
     return false;
 
   return true;
+}
+
+bool ArduinoNvs::format() {
+  const esp_partition_t *nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+  if (nvs_partition == NULL)
+    return false;
+  esp_err_t err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
+  if (err != ESP_OK)
+    DEBUG_PRINTF("E: NVS. Cannot format the partition [%d]\n", err);
+  return err == ESP_OK;
 }
 
 void ArduinoNvs::close()

@@ -87,6 +87,7 @@ public:
   std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
 
   bool    commit();
+  bool    format(); /// Format NVS parttion. WARNING: DESTROYS ALL NVS DATA!
   
 protected:
   nvs_handle  _nvs_handle;    
