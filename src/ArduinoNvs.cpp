@@ -27,9 +27,37 @@ ArduinoNvs::ArduinoNvs()
 {
 }
 
-bool ArduinoNvs::begin(String namespaceNvs)
+esp_err_t ArduinoNvs::_init(nvs_sec_cfg_t *keys)
 {
-  esp_err_t err = nvs_flash_init();
+  #ifdef CONFIG_NVS_ENCRYPTION
+  bool noKeyPartition = ( NULL == esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL) );
+
+  // If encryption is supported - make additional cheks about keys:
+  // - try to use user-provided keys if any, OR
+  // - check is keypartition present, if no - as a last hope - try to open NVS in non-encrypted mode
+  if (keys)
+  {
+    return nvs_flash_secure_init(keys);
+  }
+  else if (noKeyPartition)    
+  {
+    DEBUG_PRINTLN("W: You are trying to open Non-encrypted NVS on Encryption-enabled system. Maybe something is miscofigured");
+    return nvs_flash_init_partition(NVS_DEFAULT_PART_NAME);
+  }  
+  #endif
+
+  // in all other cases use usual init process
+  return nvs_flash_init();
+}
+
+bool ArduinoNvs::begin(String namespaceNvs) 
+{
+  return begin(namespaceNvs, NULL);
+}
+
+bool ArduinoNvs::begin(String namespaceNvs, nvs_sec_cfg_t *keys)
+{  
+  esp_err_t err = _init(keys);
   if (err != ESP_OK)
   {
     DEBUG_PRINTLN("W: NVS. Cannot init flash mem");
@@ -42,7 +70,7 @@ bool ArduinoNvs::begin(String namespaceNvs)
     if (nvs_partition == NULL)
       return false;
     err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
-    esp_err_t err = nvs_flash_init();
+    esp_err_t err = _init(keys);
     if (err)
       return false;
     DEBUG_PRINTLN("NVS. Partition re-formatted");

@@ -43,10 +43,12 @@ extern "C" {
   #define DEBUG_PRINTLN(...) { }
   #define DEBUG_PRINTF(fmt, args...) { }
 #else
-  #define DEBUG_PRINTER Serial
-  #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
-  #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
-  #define DEBUG_PRINTF(fmt, args...) { DEBUG_PRINTER.printf(fmt,## args); }
+  #ifndef ANVS_DEBUG_PRINTER
+  #define ANVS_DEBUG_PRINTER Serial
+  #endif
+  #define DEBUG_PRINT(...) { ANVS_DEBUG_PRINTER.print(__VA_ARGS__); }
+  #define DEBUG_PRINTLN(...) { ANVS_DEBUG_PRINTER.println(__VA_ARGS__); }
+  #define DEBUG_PRINTF(fmt, args...) { ANVS_DEBUG_PRINTER.printf(fmt,## args); }
 #endif
 
 class ArduinoNvs {
@@ -54,6 +56,8 @@ public:
   ArduinoNvs();
 
   bool    begin(String namespaceNvs = "storage");
+  bool    begin(String namespaceNvs, nvs_sec_cfg_t *keys); /// use only for that rare cases, when you do not have NVS Key Partition, and store keys in external secure storage (or hardcode). See https://docs.espressif.com/projects/esp-idf/en/release-v5.0/esp32/api-reference/storage/nvs_flash.html#encrypted-read-write
+  
   void    close();
 
   bool    eraseAll(bool forceCommit = true);
@@ -82,9 +86,11 @@ public:
   bool    getBlob(String key, std::vector<uint8_t>& blob);  
   std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
 
-  bool        commit();
+  bool    commit();
+  
 protected:
   nvs_handle  _nvs_handle;    
+  esp_err_t _init(nvs_sec_cfg_t *cfg);
 };
 
 extern ArduinoNvs NVS;
