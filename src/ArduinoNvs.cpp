@@ -27,9 +27,37 @@ ArduinoNvs::ArduinoNvs()
 {
 }
 
-bool ArduinoNvs::begin(String namespaceNvs)
+esp_err_t ArduinoNvs::_init(nvs_sec_cfg_t *keys)
 {
-  esp_err_t err = nvs_flash_init();
+  // If encryption is supported - make additional moves for retrieving keys:
+  // - try to use user-provided keys if any, OR
+  // - check is keypartition present, if no - as a last hope - try to open NVS in non-encrypted mode
+  #ifdef CONFIG_NVS_ENCRYPTION
+  bool noKeyPartition = ( NULL == esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL) );
+
+  if (keys)
+  {
+    return nvs_flash_secure_init(keys);
+  }
+  else if (noKeyPartition)    
+  {
+    DEBUG_PRINTLN("W: You are trying to open Non-encrypted NVS on Encryption-enabled system. Maybe something is miscofigured");
+    return nvs_flash_init_partition(NVS_DEFAULT_PART_NAME);
+  }  
+  #endif
+
+  // in all other cases use usual init process
+  return nvs_flash_init();
+}
+
+bool ArduinoNvs::begin(String namespaceNvs) 
+{
+  return begin(namespaceNvs, NULL);
+}
+
+bool ArduinoNvs::begin(String namespaceNvs, nvs_sec_cfg_t *keys)
+{  
+  esp_err_t err = _init(keys);
   if (err != ESP_OK)
   {
     DEBUG_PRINTLN("W: NVS. Cannot init flash mem");
@@ -38,11 +66,10 @@ bool ArduinoNvs::begin(String namespaceNvs)
 
     // erase and reinit
     DEBUG_PRINTLN("NVS. Try reinit the partition");
-    const esp_partition_t *nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-    if (nvs_partition == NULL)
+    err = format();
+    if (err)
       return false;
-    err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
-    esp_err_t err = nvs_flash_init();
+    err = _init(keys);
     if (err)
       return false;
     DEBUG_PRINTLN("NVS. Partition re-formatted");
@@ -55,9 +82,30 @@ bool ArduinoNvs::begin(String namespaceNvs)
   return true;
 }
 
-void ArduinoNvs::close()
+bool ArduinoNvs::format() {
+  const esp_partition_t *nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+  if (nvs_partition == NULL) {
+    DEBUG_PRINTLN("E: NVS. No NVS partition");
+    return false;
+  }
+  esp_err_t err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
+  if (err != ESP_OK)
+    DEBUG_PRINTF("E: NVS. Cannot format the partition [%d]\n", err);
+  return err == ESP_OK;
+}
+
+bool ArduinoNvs::close(bool deinit_partition)
 {
   nvs_close(_nvs_handle);
+  if (deinit_partition == false)
+    return true;
+  
+  // deinit parttion if needed  
+  esp_err_t err = nvs_flash_deinit();
+  if (err != ESP_OK)
+    DEBUG_PRINTF("W: NVS. Cannot deinit the partition [%d]\n", err);
+  
+  return err == ESP_OK;
 }
 
 bool ArduinoNvs::eraseAll(bool forceCommit)
@@ -225,12 +273,11 @@ bool ArduinoNvs::getString(String key, String &res)
   return true;
 }
 
-String ArduinoNvs::getString(String key)
-{
+String  ArduinoNvs::getString(String key, const char* default_value) {
   String res;
   bool ok = getString(key, res);
   if (!ok)
-    return String();
+    return String(default_value);
   return res;
 }
 

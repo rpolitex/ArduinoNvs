@@ -43,10 +43,12 @@ extern "C" {
   #define DEBUG_PRINTLN(...) { }
   #define DEBUG_PRINTF(fmt, args...) { }
 #else
-  #define DEBUG_PRINTER Serial
-  #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
-  #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
-  #define DEBUG_PRINTF(fmt, args...) { DEBUG_PRINTER.printf(fmt,## args); }
+  #ifndef ANVS_DEBUG_PRINTER
+  #define ANVS_DEBUG_PRINTER Serial
+  #endif
+  #define DEBUG_PRINT(...) { ANVS_DEBUG_PRINTER.print(__VA_ARGS__); }
+  #define DEBUG_PRINTLN(...) { ANVS_DEBUG_PRINTER.println(__VA_ARGS__); }
+  #define DEBUG_PRINTF(fmt, args...) { ANVS_DEBUG_PRINTER.printf(fmt,## args); }
 #endif
 
 class ArduinoNvs {
@@ -54,7 +56,9 @@ public:
   ArduinoNvs();
 
   bool    begin(String namespaceNvs = "storage");
-  void    close();
+  bool    begin(String namespaceNvs, nvs_sec_cfg_t *keys); /// use only for that rare cases, when you do not have NVS Key Partition, and store keys in external secure storage (or hardcode). See https://docs.espressif.com/projects/esp-idf/en/release-v5.0/esp32/api-reference/storage/nvs_flash.html#encrypted-read-write
+  
+  bool    close(bool deinit_partition = false);
 
   bool    eraseAll(bool forceCommit = true);
   bool    erase(String key, bool forceCommit = true);
@@ -75,19 +79,21 @@ public:
   float   getFloat(String key, float default_value = 0);
   
   bool    getString(String key, String& res);
-  String  getString(String key);
+  String  getString(String key, const char* default_value = "");
 
   size_t  getBlobSize(String key);  /// Returns the size of the stored blob
   bool    getBlob(String key,  uint8_t* blob, size_t length);  /// User should proivde enought memory to store the loaded blob. If length < than required size to store blob, function fails.
   bool    getBlob(String key, std::vector<uint8_t>& blob);  
   std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
 
-  bool        commit();
+  bool    commit();
+  static bool format(); /// Format NVS parttion. WARNING: DESTROYS ALL NVS DATA!
+  
 protected:
   nvs_handle  _nvs_handle;    
+  esp_err_t _init(nvs_sec_cfg_t *cfg);
 };
 
 extern ArduinoNvs NVS;
 
 #endif
-
