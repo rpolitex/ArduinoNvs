@@ -58,7 +58,7 @@ public:
   bool    begin(String namespaceNvs = "storage");
   bool    begin(String namespaceNvs, nvs_sec_cfg_t *keys); /// use only for that rare cases, when you do not have NVS Key Partition, and store keys in external secure storage (or hardcode). See https://docs.espressif.com/projects/esp-idf/en/release-v5.0/esp32/api-reference/storage/nvs_flash.html#encrypted-read-write
   
-  void    close();
+  bool    close(bool deinit_partition = false);
 
   bool    eraseAll(bool forceCommit = true);
   bool    erase(String key, bool forceCommit = true);
@@ -97,4 +97,3 @@ protected:
 extern ArduinoNvs NVS;
 
 #endif
-

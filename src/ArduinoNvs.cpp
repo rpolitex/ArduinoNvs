@@ -94,9 +94,18 @@ bool ArduinoNvs::format() {
   return err == ESP_OK;
 }
 
-void ArduinoNvs::close()
+bool ArduinoNvs::close(bool deinit_partition)
 {
   nvs_close(_nvs_handle);
+  if (deinit_partition == false)
+    return true;
+  
+  // deinit parttion if needed  
+  esp_err_t err = nvs_flash_deinit();
+  if (err != ESP_OK)
+    DEBUG_PRINTF("W: NVS. Cannot deinit the partition [%d]\n", err);
+  
+  return err == ESP_OK;
 }
 
 bool ArduinoNvs::eraseAll(bool forceCommit)
