@@ -84,8 +84,10 @@ bool ArduinoNvs::begin(String namespaceNvs, nvs_sec_cfg_t *keys)
 
 bool ArduinoNvs::format() {
   const esp_partition_t *nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-  if (nvs_partition == NULL)
+  if (nvs_partition == NULL) {
+    DEBUG_PRINTLN("E: NVS. No NVS partition");
     return false;
+  }
   esp_err_t err = esp_partition_erase_range(nvs_partition, 0, nvs_partition->size);
   if (err != ESP_OK)
     DEBUG_PRINTF("E: NVS. Cannot format the partition [%d]\n", err);
@@ -262,12 +264,11 @@ bool ArduinoNvs::getString(String key, String &res)
   return true;
 }
 
-String ArduinoNvs::getString(String key)
-{
+String  ArduinoNvs::getString(String key, const char* default_value) {
   String res;
   bool ok = getString(key, res);
   if (!ok)
-    return String();
+    return String(default_value);
   return res;
 }
 

@@ -79,7 +79,7 @@ public:
   float   getFloat(String key, float default_value = 0);
   
   bool    getString(String key, String& res);
-  String  getString(String key);
+  String  getString(String key, const char* default_value = "");
 
   size_t  getBlobSize(String key);  /// Returns the size of the stored blob
   bool    getBlob(String key,  uint8_t* blob, size_t length);  /// User should proivde enought memory to store the loaded blob. If length < than required size to store blob, function fails.
@@ -87,7 +87,7 @@ public:
   std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
 
   bool    commit();
-  bool    format(); /// Format NVS parttion. WARNING: DESTROYS ALL NVS DATA!
+  static bool format(); /// Format NVS parttion. WARNING: DESTROYS ALL NVS DATA!
   
 protected:
   nvs_handle  _nvs_handle;    
