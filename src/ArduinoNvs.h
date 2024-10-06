@@ -51,13 +51,14 @@ extern "C" {
   #define DEBUG_PRINTF(fmt, args...) { ANVS_DEBUG_PRINTER.printf(fmt,## args); }
 #endif
 
+// key max 15-chars; max namespaces: 254.
 class ArduinoNvs {
 public:
   ArduinoNvs();
-
   bool    begin(String namespaceNvs = "storage");
   bool    begin(String namespaceNvs, nvs_sec_cfg_t *keys); /// use only for that rare cases, when you do not have NVS Key Partition, and store keys in external secure storage (or hardcode). See https://docs.espressif.com/projects/esp-idf/en/release-v5.0/esp32/api-reference/storage/nvs_flash.html#encrypted-read-write
-  
+  uint8_t stats();
+
   bool    close(bool deinit_partition = false);
 
   bool    eraseAll(bool forceCommit = true);
@@ -74,6 +75,7 @@ public:
   bool    setString(String key, String value, bool forceCommit = true);
   bool    setBlob(String key, uint8_t* blob, size_t length, bool forceCommit = true);
   bool    setBlob(String key, std::vector<uint8_t>& blob, bool forceCommit = true);
+  bool    setBlob(String key, std::initializer_list<uint8_t> blob, bool forceCommit = true);
 
   int64_t getInt(String key, int64_t default_value = 0);  // In case of error, default_value will be returned
   float   getFloat(String key, float default_value = 0);
@@ -82,16 +84,20 @@ public:
   String  getString(String key, const char* default_value = "");
 
   size_t  getBlobSize(String key);  /// Returns the size of the stored blob
-  bool    getBlob(String key,  uint8_t* blob, size_t length);  /// User should proivde enought memory to store the loaded blob. If length < than required size to store blob, function fails.
-  bool    getBlob(String key, std::vector<uint8_t>& blob);  
-  std::vector<uint8_t> getBlob(String key); /// Less eficient but more simple in usage implemetation of `getBlob()`
+  size_t  getBlob(String key,  uint8_t* blob); // !IMPORTANT: need to provie enough malloc'd memory for the blob!
+  std::vector<uint8_t> getBlob(String key); // does 2 calls so less efficient than above
 
   bool    commit();
   static bool format(); /// Format NVS parttion. WARNING: DESTROYS ALL NVS DATA!
   
+  std::vector<String> entryFind(String search_key="");  
+  bool    exists(String key);
+
 protected:
+  char _nvs_namespace[16] = {0};
   nvs_handle  _nvs_handle;    
   esp_err_t _init(nvs_sec_cfg_t *cfg);
+  nvs_iterator_t it = NULL;
 };
 
 extern ArduinoNvs NVS;
